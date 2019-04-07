@@ -36,7 +36,6 @@ public:
 	void printResponse() {
 		std::cout << "printing response" << std::endl;
 		for (auto it = entries.begin(); it != entries.end(); it++) {
-			std::cout << "row:" << std::endl;
 			for (auto iter = it->begin(); iter != it->end(); iter++) {
 				std::cout << *iter << ";";
 			}
@@ -187,7 +186,7 @@ int main(void)
 
 					std::string username = clientRequest["username"];
 					std::string password = clientRequest["password"];
-					std::cout << "client logging in... usr:" << username << "; pass:" << password << std::endl;
+					std::cout << "client trying to log in... usr:" << username << "; pass:" << password << std::endl;
 					databaseResponse userlogin;
 					char * errMSG;
 					std::string sqlquery = "SELECT * FROM users WHERE password=\'" + password + "\' AND username=\'" + username + "\'";
@@ -199,7 +198,7 @@ int main(void)
 					std::string userId = userlogin.entries[0][0];
 
 					if (userlogin.entries.size() == 1) {
-						std::cout << "login successful" << std::endl;
+						std::cout << "login successful!" << std::endl;
 						//login andmed õiged
 
 						//1 - login
@@ -247,6 +246,8 @@ int main(void)
 					}
 					else {
 						//login andmed valed
+						//saada kliendile "ei"
+						std::cout << "login failed!" << std::endl;
 					}
 				}
 				catch (nlohmann::json::parse_error& error) {
