@@ -58,7 +58,18 @@ static int callback(void *pResponse, int argc, char** argv, char **azColName){
 }
 
 
-
+int sendResponse(SOCKET clientSocket, nlohmann::json outputArray) {
+	std::string midstageconversion = outputArray.dump();
+	const char * charMatchingUserList = midstageconversion.c_str();
+	int iSendResult = send(clientSocket, charMatchingUserList, strlen(charMatchingUserList) + 1, 0);
+	if (iSendResult == SOCKET_ERROR) {
+		printf("send failed with error: %d\n", WSAGetLastError());
+		closesocket(clientSocket);
+		WSACleanup();
+		return 1;
+	}
+	return 0;
+}
 
 
 int main(void)
@@ -160,18 +171,6 @@ int main(void)
 			iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
 			if (iResult > 0) {
 				printf("Bytes received: %d\n", iResult);
-				/*
-				// Echo the buffer back to the sender
-				iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-				if (iSendResult == SOCKET_ERROR) {
-					printf("send failed with error: %d\n", WSAGetLastError());
-					closesocket(ClientSocket);
-					WSACleanup();
-					return 1;
-				}
-
-				printf("Bytes sent: %d\n", iSendResult);
-				*/
 				std::string buffer = recvbuf;
 
 				nlohmann::json clientRequest;
@@ -210,6 +209,8 @@ int main(void)
 						switch (std::stoi(reqType)) {
 						case 1:
 							//saada kliendile "jah"
+							sendResponse(ClientSocket, nlohmann::json::array());
+
 							break;
 
 						case 2:
@@ -231,13 +232,8 @@ int main(void)
 								matchingUser["job"] = iter->at(3);
 								matchingUserList.push_back(matchingUser);
 							}
-							std::string midstageconversion = matchingUserList.dump();
-							const char * charMatchingUserList = midstageconversion.c_str();
-							iSendResult = send(ClientSocket, charMatchingUserList, strlen(charMatchingUserList) + 1, 0);
-							if (iSendResult == SOCKET_ERROR) {
-								printf("send failed with error: %d\n", WSAGetLastError());
-								closesocket(ClientSocket);
-								WSACleanup();
+							if (sendResponse(ClientSocket, matchingUserList)) {
+								//probleem saatmisel
 								break;
 							}
 
