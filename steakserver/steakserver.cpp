@@ -207,37 +207,44 @@ int main(void)
 						std::cout << reqType << std::endl;
 						std::cout << std::stoi(reqType) << std::endl;
 						switch (std::stoi(reqType)) {
-						case 1:
-							//saada kliendile "jah"
-							sendResponse(ClientSocket, nlohmann::json::array());
+							case 1: {
+								//saada kliendile "jah"
+								sendResponse(ClientSocket, nlohmann::json::array());
 
-							break;
-
-						case 2:
-							//annab andmebaasist kasutaja huvide tabeli
-							std::cout << "quering matching users" << std::endl;
-							std::string selectUserInterests = "select i.userId, u.username, u.name, u.job, count(i.userId) from interests i, users u where i.interest in(select interest from interests where userId =" + userId + ") and i.userId != " + userId + " and u.id = i.userId group by i.userId order by count(i.userId) desc";
-							databaseResponse matchList;
-							sqlite3_exec(db, selectUserInterests.c_str(), callback, &matchList, &errMSG);
-							if (errMSG != 0) {
-								std::cout << "sqlite error:" << errMSG << std::endl;
-							}
-							std::cout << "matching users" << std::endl;
-							matchList.printResponse();
-							auto matchingUserList = nlohmann::json::array();
-							for (auto iter = matchList.entries.begin(); iter != matchList.entries.end(); iter++) {
-								nlohmann::json matchingUser = nlohmann::json::object();
-								matchingUser["id"] = iter->at(0);
-								matchingUser["name"] = iter->at(2);
-								matchingUser["job"] = iter->at(3);
-								matchingUserList.push_back(matchingUser);
-							}
-							if (sendResponse(ClientSocket, matchingUserList)) {
-								//probleem saatmisel
 								break;
 							}
 
-							break;
+							case 2: {
+								//annab andmebaasist kasutaja huvide tabeli
+								std::cout << "quering matching users" << std::endl;
+								std::string selectUserInterests = "select i.userId, u.username, u.name, u.job, count(i.userId) from interests i, users u where i.interest in(select interest from interests where userId =" + userId + ") and i.userId != " + userId + " and u.id = i.userId group by i.userId order by count(i.userId) desc";
+								databaseResponse matchList;
+								sqlite3_exec(db, selectUserInterests.c_str(), callback, &matchList, &errMSG);
+								if (errMSG != 0) {
+									std::cout << "sqlite error:" << errMSG << std::endl;
+								}
+								std::cout << "matching users" << std::endl;
+								matchList.printResponse();
+								auto matchingUserList = nlohmann::json::array();
+								for (auto iter = matchList.entries.begin(); iter != matchList.entries.end(); iter++) {
+									nlohmann::json matchingUser = nlohmann::json::object();
+									matchingUser["id"] = iter->at(0);
+									matchingUser["name"] = iter->at(2);
+									matchingUser["job"] = iter->at(3);
+									matchingUserList.push_back(matchingUser);
+								}
+								if (sendResponse(ClientSocket, matchingUserList)) {
+									//probleem saatmisel
+									break;
+								}
+
+								break;
+							}
+
+							default: {
+
+							}
+
 						}
 					}
 					else {
