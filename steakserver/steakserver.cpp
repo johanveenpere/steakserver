@@ -203,6 +203,7 @@ int main(void)
 						//1 - login
 						//2 - anna inimesed
 						//3 - anna kokkulepped
+						//4 - anna profiil
 						std::string reqType = clientRequest["type"];
 						std::cout << reqType << std::endl;
 						std::cout << std::stoi(reqType) << std::endl;
@@ -239,6 +240,12 @@ int main(void)
 								}
 
 								break;
+							}
+
+							case 3: {
+
+								std::cout << "querying lunches" << std::endl;
+								std::string selectLunches = "select u.name, CASE when u.id = m.inviterId THEN 'inviter' ELSE 'invitee' END role, m.location, m.datetime, m.status from meetings m, users u where ( u.id = m.inviterId and m.inviteeId = 1 ) or ( u.id = m.inviteeId and m.inviterId = 1 ); "
 							}
 
 							default: {
